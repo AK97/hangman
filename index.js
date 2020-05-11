@@ -22,6 +22,7 @@ function sanitizeString(str){
 const port = 69; //port for hosting site on local system. will probably be invalidated once hosted elsewhere.
 
 app.use('/styles',express.static(__dirname + '/styles')); //provide client with (static) stylesheets
+app.use('/images',express.static(__dirname + '/images')); //provide client with (static) images
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
@@ -48,16 +49,22 @@ io.on('connection', (socket) => {
     })
 
     socket.on('wordSubmission', (word) => {
-      submitted_word = sanitizeString(word.trim()).toUpperCase();
-      socket.emit('cleansedWord', submitted_word)
+      if (socket.introduced == true) {
+        submitted_word = sanitizeString(word.trim()).toUpperCase();
+        socket.emit('cleansedWord', submitted_word)
+      }
+      else {
+        socket.emit('needName');
+      }
     })
 
     socket.on('startGame', (gameword) => {
       play_word = sanitizeString(gameword.trim()).toUpperCase();
-      //info = length of word and location of spaces
-      info = 0;
+      //ghostword = word but hidden; characters replaced with underscores.
+      ghostword = play_word.replace(/[A-Z]/g, '~')
       console.log('starting game');
-      io.emit('gameStart', info);
+      io.emit('gameStart', ghostword);
+      game_active = true;
     })
 
     socket.on('disconnect', () => {
@@ -66,6 +73,8 @@ io.on('connection', (socket) => {
       io.emit('playerListUpdate', nicknameList());
       console.log('user ' + playerID + ' disconnected');
     });
+
+
   }
 });
 

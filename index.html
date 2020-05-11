@@ -41,9 +41,13 @@
       socket.emit('startGame', $('#currentWord').text());
       return false;
     });
-    socket.on('gameStart', function(info){
+    socket.on('needName', function() {
+      alert('Please join the game first');
+    })
+    socket.on('gameStart', function(ghostword){
       $('#setup').remove();
-
+      $('#hangman_img').append($('<img id="hangman_pic" src="images/hangman.png" />'));
+      $('#ghostword').text(ghostword);
     })
   });
 </script>
@@ -57,11 +61,22 @@
   <div id="gameCanvas">
     <div id="playerlist">
     <h2>Players</h2>
-      <ul id="players"><li>test</li></ul>
+      <ul id="players"></ul>
     </div>
 
     <div id="hangman_img">
+      
     </div>
+
+    <div id="play_area">
+      <div id="game_log">
+        
+      </div>
+      <div id="word_area">
+        <span id="ghostword"></span>
+      </div>
+    </div>
+
   </div>
   
 

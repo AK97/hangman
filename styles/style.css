@@ -6,6 +6,10 @@ p {
 	padding: 2px 4px;
 }
 
+form {
+	padding: 5px 10px;
+}
+
 #gameContainer {
 	background-color: #a3a3a3;
 	width: 90%;
@@ -22,7 +26,7 @@ p {
 }
 
 #players {
-	width: 100%;
+	width: 250px;
 	position:relative;
 	list-style-type: none;
 	margin: 0;
@@ -41,13 +45,25 @@ p {
 
 #gameCanvas {
 	width: 100%;
-	border:1px solid;
-	display:table-row;
+	height: 500px;
+	display:table;
 }
 
 #gameCanvas > div {
-	display:table-cell;
+	display:table-column;
 	float:left;
+	height:100%;
+}
+
+#play_area {
+	display:table-row;
+	width:calc(100% - 300px - 250px);
+}
+#play_area > div {
+	display:table;
+	height:50%;
+	width:100%;
+	text-align: center;
 }
 
 #playerlist {
@@ -55,6 +71,7 @@ p {
 	
 }
 
-form {
-	padding: 5px 10px;
+#ghostword {
+	font-size:48px;
 }
+
