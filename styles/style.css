@@ -2,7 +2,7 @@ body {
 	background-color: #757575
 }
 
-p {
+p, h1, h2, h3 {
 	padding: 2px 4px;
 }
 
@@ -64,6 +64,11 @@ form {
 	height:50%;
 	width:100%;
 	text-align: center;
+	overflow: scroll;
+}
+
+#game_log {
+	list-style-type: none;
 }
 
 #playerlist {

@@ -18,6 +18,11 @@ function sanitizeString(str){
   str = str.replace(/[^a-zA-Z\s]/g, '');
   return str.trim();
 }
+var current_game = {
+  phrase:"";
+  ghostphrase:"";
+  
+};
 
 const port = 69; //port for hosting site on local system. will probably be invalidated once hosted elsewhere.
 
@@ -60,10 +65,11 @@ io.on('connection', (socket) => {
 
     socket.on('startGame', (gameword) => {
       play_word = sanitizeString(gameword.trim()).toUpperCase();
-      //ghostword = word but hidden; characters replaced with underscores.
+      //ghostword = word but hidden; characters replaced with ~, ideally underscores later?.
       ghostword = play_word.replace(/[A-Z]/g, '~')
       console.log('starting game');
       io.emit('gameStart', ghostword);
+      io.emit('logEvent', socket.nickname+' has started the game!')
       game_active = true;
     })
 
@@ -75,6 +81,11 @@ io.on('connection', (socket) => {
     });
 
 
+  }
+
+  else {
+    //build the ongoing game on client page
+    //disallow participation, label them a spectator
   }
 });
 
