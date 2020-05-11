@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+  <title>HANGMAN</title>
+  <link rel="stylesheet" type="text/css" href="styles/style.css">
+</head>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script>
+  $(function () {
+    var socket = io();
+    $('form').submit(function(e){
+      e.preventDefault(); // prevents page reloading
+      socket.emit('nicknameUpdate', $('#n').val()); //when user inputs name, send as 'nicknameUpdate' event
+      $('#n').val('');
+      return false;
+    });
+    socket.on('playerListUpdate', function(playerlist){
+      console.log(playerlist);
+      $('#players').empty();
+      for(p in playerlist) {
+        $('#players').append($('<li>').text(playerlist[p]));
+      }
+    });
+  });
+</script>
+
+<body>
+
+<div id="lobbyContainer">
+<h1>Players in Game</h1>
+<div id="playerlist">
+  <ul id="players"></ul>
+</div>
+
+<div id="nameEntry">
+  <h2>Join by introducing yourself</h2>
+  <form class="name_entry" action="">Name
+    <input id="n" autocomplete="off" />
+  </form>
+</div>
+</div>
+
+
+</body>
+
+</html>

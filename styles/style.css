@@ -1,0 +1,31 @@
+body {
+	background-color: #757575
+}
+
+#lobbyContainer {
+	background-color: #a3a3a3;
+	width: 50%;
+	height: 50%;
+	left: 25%;
+	top: 20%;
+	position: fixed;
+	border: 2px black solid;
+}
+
+#players {
+	width: 100%;
+	position:relative;
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	overflow: scroll;
+}
+
+#players li {
+	padding: 5px 10px;
+}
+
+#nameEntry {
+	position:absolute;
+	bottom:0;
+}
