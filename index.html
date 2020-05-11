@@ -10,38 +10,82 @@
 <script>
   $(function () {
     var socket = io();
-    $('form').submit(function(e){
+    $('#name_form').submit(function(e){
       e.preventDefault(); // prevents page reloading
       socket.emit('nicknameUpdate', $('#n').val()); //when user inputs name, send as 'nicknameUpdate' event
       $('#n').val('');
       return false;
     });
     socket.on('playerListUpdate', function(playerlist){
-      console.log(playerlist);
       $('#players').empty();
       for(p in playerlist) {
         $('#players').append($('<li>').text(playerlist[p]));
       }
     });
+    socket.on('updateMessage', function(playername){
+      $('#message').empty();
+      $('#message').append($('<h2>').text('Welcome to the game, ' + playername));
+      $('#prompt').text('Rename')
+    });
+    $('#word_entry').submit(function(e){
+      e.preventDefault(); // prevents page reloading
+      socket.emit('wordSubmission', $('#word').val()); //when user inputs name, send as 'nicknameUpdate' event
+      $('#n').val('');
+      return false;
+    });
+    socket.on('cleansedWord', function(word){
+      $('#currentWord').text(word);
+      $('#startButton').prop('disabled',false);
+    })
+    $('#startButton').click(function(){
+      socket.emit('startGame', $('#currentWord').text());
+      return false;
+    });
+    socket.on('gameStart', function(info){
+      $('#setup').remove();
+
+    })
   });
 </script>
 
 <body>
 
-<div id="lobbyContainer">
-<h1>Players in Game</h1>
-<div id="playerlist">
-  <ul id="players"></ul>
-</div>
+<div id="gameContainer">
 
-<div id="nameEntry">
-  <h2>Join by introducing yourself</h2>
-  <form class="name_entry" action="">Name
-    <input id="n" autocomplete="off" />
-  </form>
-</div>
-</div>
+  <center><h1>HANGMAN</h1></center>
+  
+  <div id="gameCanvas">
+    <div id="playerlist">
+    <h2>Players</h2>
+      <ul id="players"><li>test</li></ul>
+    </div>
 
+    <div id="hangman_img">
+    </div>
+  </div>
+  
+
+  <div id="setup">
+    <div id="nameEntry">
+      <div id="message">
+        <h2>Join by introducing yourself</h2>
+      </div>
+      <form id="name_form" class="name_entry" action="">
+        <span id="prompt">Name</span>
+        <input id="n" autocomplete="off" minlength="1" maxlength="20"/>
+      </form>
+    </div>
+
+    <h2>Enter a word or phrase for others to guess</h2>
+    <p>Anyone may submit a word and start the game. Starting a game will prevent more players from joining.</p>
+    <form id="word_entry" action="">
+        <input id="word" autocomplete="off" minlength="1" />
+        <span id="warning"></span>
+    </form>
+    <p>You have submitted: <span id="currentWord">nothing yet</span> <button disabled id="startButton">Start Game!</button></p>
+  </div>
+
+</div>
 
 </body>
 
