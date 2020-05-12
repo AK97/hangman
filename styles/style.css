@@ -61,7 +61,7 @@ form {
 }
 #play_area > div {
 	display:table;
-	height:50%;
+	height:33%;
 	width:100%;
 	text-align: center;
 	overflow: scroll;

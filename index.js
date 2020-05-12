@@ -5,23 +5,16 @@ var io = require('socket.io')(http);
 
 var game_active = false;
 var players = {};
-function nicknameList() {
-  var nicknames = [];
-  for(var p in players) {
-    if(players[p].introduced==true) {
-       nicknames.push(players[p].nickname);
-    }
-  }
-  return nicknames;
-}
+var introduced = {};
+
 function sanitizeString(str){
   str = str.replace(/[^a-zA-Z\s]/g, '');
   return str.trim();
 }
 var current_game = {
-  phrase:"";
-  ghostphrase:"";
-  
+  wordmaster:"",
+  phrase:"",
+  ghostphrase:""
 };
 
 const port = 69; //port for hosting site on local system. will probably be invalidated once hosted elsewhere.
@@ -36,25 +29,23 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
   //what to do upon new user appearing
-  if (!game_active) {
-    io.emit('playerListUpdate', nicknameList()); //give them current lobby details
+    io.emit('playerListUpdate', Object.values(players)); //give them current lobby details
 
-    playerID = socket.id;
-    socket.nickname = 'unnamed player'; //default username
-    socket.introduced = false;
-    players[playerID] = socket; //track all users
-    console.log('new user has joined with player id ' + playerID);
+    //players[socket.id] = 'unnamed player';
+    introduced[socket.id] = false;
+
+    console.log('new user has joined with player id ' + socket.id);
 
     socket.on('nicknameUpdate', (newName) => {
-      players[playerID].nickname = newName;
-      players[playerID].introduced = true;
-      console.log('player ' + playerID + ' has assigned themself nickname ' + newName);
-      io.emit('playerListUpdate', nicknameList());
-      socket.emit('updateMessage', socket.nickname)
+      players[socket.id] = newName;
+      introduced[socket.id] = true;
+      console.log('player ' + socket.id + ' has assigned themself nickname ' + newName);
+      io.emit('playerListUpdate', Object.values(players));
+      socket.emit('updateMessage', players[socket.id])
     })
 
     socket.on('wordSubmission', (word) => {
-      if (socket.introduced == true) {
+      if (introduced[socket.id] == true) {
         submitted_word = sanitizeString(word.trim()).toUpperCase();
         socket.emit('cleansedWord', submitted_word)
       }
@@ -69,24 +60,22 @@ io.on('connection', (socket) => {
       ghostword = play_word.replace(/[A-Z]/g, '~')
       console.log('starting game');
       io.emit('gameStart', ghostword);
-      io.emit('logEvent', socket.nickname+' has started the game!')
+      socket.broadcast.emit('setupGuessing');
+      io.emit('logEvent', players[socket.id]+' has started the game!')
       game_active = true;
     })
 
     socket.on('disconnect', () => {
     	//what to do upon new user disappearing
-      delete players[playerID];
-      io.emit('playerListUpdate', nicknameList());
-      console.log('user ' + playerID + ' disconnected');
+      delete players[socket.id];
+      io.emit('playerListUpdate', Object.values(players));
+      console.log('user ' + socket.id + ' disconnected');
     });
 
-
-  }
-
-  else {
-    //build the ongoing game on client page
-    //disallow participation, label them a spectator
-  }
+  // else { //if game is already active,...
+  //   //build the ongoing game on client page
+  //   //disallow participation, label them a spectator
+  // }
 });
 
 http.listen(port, () => {
