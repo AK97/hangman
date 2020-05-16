@@ -3,7 +3,7 @@ var app = express();
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 
-const alphabet = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+//const alphabet = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
 var game_active = false;
 var players = {};
 var game;
@@ -14,7 +14,7 @@ class Game {
     this.word = word; //the solution phrase
     this.log = [players[gameStarter]+' has started the game!']; //game log history
     this.wrong_letters = [];
-    this.available_letters = alphabet;
+    this.available_letters = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
     this.current_progress = this.word.replace(/[A-Z]/g, '~');
     this.isOver = false;
     this.limit = 7; //how many guesses are game over. eventually chooseable by host
@@ -79,10 +79,12 @@ io.on('connection', (socket) => {
     console.log('new user has joined with player id ' + socket.id);
 
     socket.on('nicknameUpdate', (newName) => {
-      players[socket.id] = newName;
-      console.log('player ' + socket.id + ' has assigned themself nickname ' + newName);
-      io.emit('playerListUpdate', Object.values(players));
-      socket.emit('updateMessage', players[socket.id])
+      if (newName.length > 0) {
+        players[socket.id] = newName;
+        console.log('player ' + socket.id + ' has assigned themself nickname ' + newName);
+        io.emit('playerListUpdate', Object.values(players));
+        socket.emit('updateMessage', players[socket.id])
+      }
     })
 
     socket.on('wordSubmission', (word) => {
@@ -108,6 +110,9 @@ io.on('connection', (socket) => {
       if (!game.isOver) { //ensure game isn't over
         if (game.available_letters.includes(letter)) { //ensure valid input
           game.guessLetter(letter, players[socket.id]);
+          if (game.isOver) {
+            game_active = false;
+          }
           io.emit('game status update', game.status());
         }
       }

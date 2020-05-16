@@ -67,13 +67,15 @@ form {
 	overflow: scroll;
 }
 
+#game_log_area {
+	overflow-y:scroll;
+}
 #game_log {
 	list-style-type: none;
 }
 
 #playerlist {
 	min-width: 100px;
-	
 }
 
 #ghostword {
@@ -88,4 +90,8 @@ form {
 .guessable_letter {
 	font-size:36px;
 	cursor:pointer;
+}
+
+.restart {
+	font-size:60px;
 }
