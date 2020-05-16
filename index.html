@@ -16,6 +16,12 @@
       $('#n').val('');
       return false;
     });
+    $('#guessable').on('click','.guessable_letter',function(e){
+      e.preventDefault(); // prevents page reloading
+      console.log('here');
+      socket.emit('letter guess', $(this).text());
+      return false;
+    });
     socket.on('playerListUpdate', function(playerlist){
       $('#players').empty();
       for(p in playerlist) {
@@ -29,8 +35,7 @@
     });
     $('#word_entry').submit(function(e){
       e.preventDefault(); // prevents page reloading
-      socket.emit('wordSubmission', $('#word').val()); //when user inputs name, send as 'nicknameUpdate' event
-      $('#n').val('');
+      socket.emit('wordSubmission', $('#word').val());
       return false;
     });
     socket.on('cleansedWord', function(word){
@@ -44,20 +49,32 @@
     socket.on('needName', function() {
       alert('Please join the game first');
     })
-    socket.on('gameStart', function(ghostword){
+    socket.on('game status update', function(status) {
       $('#setup').empty();
-      $('#hangman_img').append($('<img id="hangman_pic" src="images/hangman.png" />'));
-      $('#ghostword').text(ghostword);
-    })
-    socket.on('logEvent', function(whatHappened){
-      $('#game_log').append($('<li>').text(whatHappened));
-    });
-    socket.on('setupGuessing', function() {
-      var alphabet = 'abcdefghijklmnopqrstuvwxyz'.toUpperCase();
-      for (i in alphabet) {
-        $('#setup').append($('<span class="guessable" href="">').text(alphabet(i)));
+      //status == [this.isOver, this.log, this.wrong_letters, this.current_progress, this.available_letters]
+      //update log
+      $('#game_log').empty();
+      for (i in status[1]) {
+        $('#game_log').append(($('<li>').text(status[1][i])));
       }
-    })
+      //populate wrong letters
+      $('#guessed_letters').empty();
+      for (i in status[2]) {
+        $('#guessed_letters').append(($('<span>').text('['+status[2][i]+']')));
+      }
+      //update hangman image
+      $('#hangman_img').empty().append($('<img>').prop('src', 'images/hm' + status[2].length + '.png'));
+      //reveal correctly guessed letters
+      $('#ghostword').text(status[3]);
+      //populate available letters
+      $('#guessable').empty();
+      for (i in status[4]) {
+        $('#guessable').append($('<button class="guessable_letter">').text(status[4][i]));
+      }
+    });
+    socket.on('spectator alert', function() {
+      alert('This game is on-going. You are spectating and will not be able to guess');
+    });
   });
 </script>
 
@@ -69,13 +86,11 @@
   
   <div id="gameCanvas">
     <div id="playerlist">
-    <h2>Players</h2>
-    <ul id="players"></ul>
+      <h2>Players</h2>
+      <ul id="players"></ul>
     </div>
 
-    <div id="hangman_img">
-      
-    </div>
+    <div id="hangman_img"></div>
 
     <div id="play_area">
       <div id="game_log_area">
@@ -88,10 +103,9 @@
         <span id="ghostword"></span>
       </div>
     </div>
-
   </div>
   
-
+  <div id="guessable"></div>
   <div id="setup">
     <div id="nameEntry">
       <div id="message">

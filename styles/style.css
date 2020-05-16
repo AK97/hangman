@@ -80,3 +80,12 @@ form {
 	font-size:48px;
 }
 
+#guessed_letters {
+	font-size:32px;
+	text-emphasis: bold;
+}
+
+.guessable_letter {
+	font-size:36px;
+	cursor:pointer;
+}

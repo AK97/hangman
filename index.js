@@ -3,19 +3,64 @@ var app = express();
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 
+const alphabet = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
 var game_active = false;
 var players = {};
-var introduced = {};
+var game;
+
+class Game {
+  constructor(word,gameStarter) {
+    this.host = gameStarter; //eventually should use this to prevent host from being able to guess
+    this.word = word; //the solution phrase
+    this.log = [players[gameStarter]+' has started the game!']; //game log history
+    this.wrong_letters = [];
+    this.available_letters = alphabet;
+    this.current_progress = this.word.replace(/[A-Z]/g, '~');
+    this.isOver = false;
+    this.limit = 7; //how many guesses are game over. eventually chooseable by host
+  }
+  guessLetter(guess, guesser) {
+    //log the guess
+    this.log.push(guesser + ' guessed the letter ' + guess);
+    //remove it from list of available letters
+    this.available_letters.splice(this.available_letters.indexOf(guess),1);
+    //reveal letters, updating current progress
+    let isRight = false;
+    for(var i=0; i < this.word.length; i++) {
+      if (this.word[i] == guess) {
+        let newGhost = this.current_progress.split("");
+        newGhost[i] = guess;
+        this.current_progress = newGhost.join("");
+        isRight = true;
+      }
+    }
+    if(!isRight) {
+      this.wrong_letters.push(guess);
+    }
+    if(this.wrong_letters.length == this.limit) {
+      this.isOver = true;
+      this.log.push('Game over. The answer was ' + this.word);
+    }
+    else if(!this.current_progress.includes('~')) {
+      this.isOver = true;
+      this.log.push('Solved! Game over.');
+    }
+  }
+  status() {
+    //return an array with:
+      //whether the game is over
+      //game log
+      //incorrectly guessed letters
+      //string with current progress
+      //letters remaining to guess
+    return [this.isOver, this.log, this.wrong_letters, this.current_progress, this.available_letters];
+  }
+}
 
 function sanitizeString(str){
   str = str.replace(/[^a-zA-Z\s]/g, '');
   return str.trim();
 }
-var current_game = {
-  wordmaster:"",
-  phrase:"",
-  ghostphrase:""
-};
 
 const port = 69; //port for hosting site on local system. will probably be invalidated once hosted elsewhere.
 
@@ -28,42 +73,45 @@ app.get('/', (req, res) => {
 
 
 io.on('connection', (socket) => {
-  //what to do upon new user appearing
+  if(!game_active) {
     io.emit('playerListUpdate', Object.values(players)); //give them current lobby details
-
-    //players[socket.id] = 'unnamed player';
-    introduced[socket.id] = false;
 
     console.log('new user has joined with player id ' + socket.id);
 
     socket.on('nicknameUpdate', (newName) => {
       players[socket.id] = newName;
-      introduced[socket.id] = true;
       console.log('player ' + socket.id + ' has assigned themself nickname ' + newName);
       io.emit('playerListUpdate', Object.values(players));
       socket.emit('updateMessage', players[socket.id])
     })
 
     socket.on('wordSubmission', (word) => {
-      if (introduced[socket.id] == true) {
+      if (players[socket.id]) {
         submitted_word = sanitizeString(word.trim()).toUpperCase();
         socket.emit('cleansedWord', submitted_word)
       }
       else {
         socket.emit('needName');
       }
-    })
+    });
 
     socket.on('startGame', (gameword) => {
-      play_word = sanitizeString(gameword.trim()).toUpperCase();
-      //ghostword = word but hidden; characters replaced with ~, ideally underscores later?.
-      ghostword = play_word.replace(/[A-Z]/g, '~')
       console.log('starting game');
-      io.emit('gameStart', ghostword);
-      socket.broadcast.emit('setupGuessing');
-      io.emit('logEvent', players[socket.id]+' has started the game!')
+      play_word = sanitizeString(gameword.trim()).toUpperCase();
+      game = new Game(play_word, socket.id);
       game_active = true;
-    })
+      io.emit('game page setup');
+      io.emit('game status update', game.status());
+    });
+
+    socket.on('letter guess', (letter) => {
+      if (!game.isOver) { //ensure game isn't over
+        if (game.available_letters.includes(letter)) { //ensure valid input
+          game.guessLetter(letter, players[socket.id]);
+          io.emit('game status update', game.status());
+        }
+      }
+    });
 
     socket.on('disconnect', () => {
     	//what to do upon new user disappearing
@@ -71,11 +119,11 @@ io.on('connection', (socket) => {
       io.emit('playerListUpdate', Object.values(players));
       console.log('user ' + socket.id + ' disconnected');
     });
-
-  // else { //if game is already active,...
-  //   //build the ongoing game on client page
-  //   //disallow participation, label them a spectator
-  // }
+  }
+  else { //if game is already active..
+    socket.emit('game status update');
+    socket.emit('spectator alert');
+  }
 });
 
 http.listen(port, () => {
