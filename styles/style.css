@@ -1,3 +1,23 @@
+html, body {
+    height: 100%;
+}
+
 ul {
     list-style-type: none;
+}
+
+#hangman_img > img {
+    max-height: 100%;
+    width: 100%;
+}
+
+#game_log_area {
+    max-height:100%;
+    overflow-y: scroll;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE */
+}
+#game_log_area::-webkit-scrollbar { /* WebKit */
+    width: 0;
+    height: 0;
 }
