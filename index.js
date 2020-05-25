@@ -4,6 +4,8 @@ var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 var session = require('express-session');
 
+const port = process.env.PORT || 69;
+
 //const alphabet = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
 var rooms = {};
 
@@ -77,8 +79,6 @@ function sanitizeString(str){
     str = str.replace(/[^a-zA-Z\s]/g, '');
     return str.trim();
 }
-
-const port = 69; //port for hosting site on local system. will probably be invalidated once hosted elsewhere.
 
 app.use('/styles',express.static(__dirname + '/styles')); //provide client with (static) stylesheets
 app.use('/images',express.static(__dirname + '/images')); //provide client with (static) images
