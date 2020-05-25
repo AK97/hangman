@@ -2,144 +2,61 @@
 <html>
 <head>
   <title>HANGMAN</title>
-  <link rel="stylesheet" type="text/css" href="styles/style.css">
+  <!-- <link rel="stylesheet" type="text/css" href="styles/style.css"> -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 </head>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script>
-  $(function () {
-    var socket = io();
-    $('#name_form').submit(function(e){
-      e.preventDefault(); // prevents page reloading
-      socket.emit('nicknameUpdate', $('#n').val()); //when user inputs name, send as 'nicknameUpdate' event
-      $('#n').val('');
-      return false;
+    $(function () {
+        var socket = io('/home');
+        $("#startButton").on('click', function() {
+            socket.emit("create game", $('#name_input').val());
+            return false;
+        });
+        $("#joinButton").on('click', function() {
+            socket.emit("join game", [$('#name_input').val(), $('#room_code').val()]);
+            return false;
+        });
+        socket.on('go to room', (url) => {
+            window.open(url, "_self")
+        })
+        socket.on('join error', (error) => {
+            $('#error_message').text(error);
+        })
     });
-    $('#guessable').on('click','.guessable_letter',function(e){
-      e.preventDefault(); // prevents page reloading
-      console.log('here');
-      socket.emit('letter guess', $(this).text());
-      return false;
-    });
-    socket.on('playerListUpdate', function(playerlist){
-      $('#players').empty();
-      for(p in playerlist) {
-        $('#players').append($('<li>').text(playerlist[p]));
-      }
-    });
-    socket.on('updateMessage', function(playername){
-      $('#message').empty();
-      $('#message').append($('<h2>').text('Welcome to the game, ' + playername));
-      $('#n').prop('placeholder','Rename');
-    });
-    $('#word_entry').submit(function(e){
-      e.preventDefault(); // prevents page reloading
-      socket.emit('wordSubmission', $('#word').val());
-      return false;
-    });
-    socket.on('cleansedWord', function(word){
-      $('#currentWord').text(word);
-      $('#startButton').prop('disabled',false);
-    })
-    $('#startButton').click(function(){
-      socket.emit('startGame', $('#currentWord').text());
-      return false;
-    });
-    socket.on('needName', function() {
-      alert('Please join the game first');
-    })
-    socket.on('game status update', function(status) {
-      $('#setup').empty();
-      //status == [this.isOver, this.log, this.wrong_letters, this.current_progress, this.available_letters]
-      if (status[0]) {
-        $('#setup').append('<h2>Game Over</h2><button class="restart" onclick="location.reload()">NEW GAME</button>');
-      }
-      //update log
-      $('#game_log').empty();
-      for (i in status[1]) {
-        $('#game_log').append(($('<li>').text(status[1][i])));
-      }
-      //populate wrong letters
-      $('#guessed_letters').empty();
-      for (i in status[2]) {
-        $('#guessed_letters').append(($('<span>').text('['+status[2][i]+']')));
-      }
-      //update hangman image
-      $('#hangman_img').empty().append($('<img>').prop('src', 'images/hm' + status[2].length + '.png'));
-      //reveal correctly guessed letters
-      $('#ghostword').text(status[3]);
-      //populate available letters
-      $('#guessable').empty();
-      for (i in status[4]) {
-        $('#guessable').append($('<button class="guessable_letter">').text(status[4][i]));
-      }
-    });
-    socket.on('spectator alert', function() {
-      alert('This game is on-going. You are spectating and will not be able to guess');
-    });
-  });
 </script>
 
-<body>
-
-<div id="gameContainer">
-
-  <center><h1>HANGMAN</h1></center>
-  
-  <div id="gameCanvas">
-    <div id="playerlist">
-      <h2>Players</h2>
-      <ul id="players"></ul>
+<body style="background-color:#F1FFE7">
+    <div class="container-fluid">
+        <div class="row mt-5">
+            <div class="col-4 m-auto">
+                <div class="">
+                    <h1 class="display-2 text-center">HANGMAN</h1>
+                    <div class="">
+                        <form>
+                            <div class="form-group">
+                              <label>Name</label>
+                              <input id="name_input" type="text" class="form-control">
+                            </div>
+                            <div class="form-group">
+                              <label>Private Room Code</label>
+                              <input id="room_code" type="text" class="form-control" placeholder="Optional">
+                            </div>
+                            <div class="text-center">
+                                <button id="joinButton" type="button" class="btn btn-primary">Join Game</button>
+                                <button id="startButton" type="button" class="btn btn-primary">Create Game</button>
+                            </div>
+                            <div class="text-center">
+                                <span id="error_message" class="text-danger"></span>    
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div id="hangman_img"></div>
-
-    <div id="play_area">
-      <div id="game_log_area">
-        <ul id="game_log"></ul>
-      </div>
-      <div id="guessed_letters">
-      </div>
-      <div id="word_area">
-        <span id="ghostword"></span>
-      </div>
-    </div>
-  </div>
-  
-  <div id="guessable"></div>
-  <div id="setup">
-    <div id="nameEntry">
-      <div id="message">
-        <h2>Join by introducing yourself</h2>
-      </div>
-      <form id="name_form" class="name_entry" action="">
-        <input id="n" autocomplete="off" minlength="1" maxlength="20" placeholder="Name"/>
-        <span id="errormsg"></span>
-        <input type="submit" value="Set Name" />
-      </form>
-    </div>
-
-    <h2>Enter a word or phrase for others to guess</h2>
-    <p>Anyone may submit a word/phrase and start the game. Once started, no new players may join.</p>
-    <form id="word_entry" action="">
-        <input id="word" autocomplete="off" minlength="1" />
-        <input type="submit" value="Submit" />
-        <!-- <select id="difficulty" required>
-          <option value="" disabled selected hidden>How many guesses allowed?</option>
-          <option>6 guesses</option>
-          <option>7 guesses</option>
-          <option>8 guesses</option>
-          <option>9 guesses</option>
-          <option>10 guesses</option>
-          <option>11 guesses</option>
-        </select> -->
-    </form>
-    <p>You have submitted: <span id="currentWord">nothing yet</span> <button disabled id="startButton">Start Game!</button></p>
-  </div>
-
-</div>
-
 </body>
 
 </html>

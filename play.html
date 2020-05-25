@@ -1,0 +1,146 @@
+<!doctype html>
+<html>
+<head>
+  <title>HANGMAN</title>
+  <link rel="stylesheet" type="text/css" href="styles/style.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+</head>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script>
+    $(function () {
+        var socket = io('/game');
+        $('#name_form').submit(function(e){
+            e.preventDefault(); // prevents page reloading
+            socket.emit('nicknameUpdate', $('#n').val()); //when user inputs name, send as 'nicknameUpdate' event
+            $('#n').val('');
+            return false;
+        });
+        $('#guessable').on('click','.guessable_letter',function(e){
+            e.preventDefault(); // prevents page reloading
+            console.log('here');
+            socket.emit('letter guess', $(this).text());
+            return false;
+        });
+        $('#setup').on('click','#word_enter',function(){
+            socket.emit('wordSubmission', $('#word').val());
+            return false;
+        });
+        $('#setup').on('click','#startButton',function(){
+            socket.emit('startGame', $('#currentWord').text());
+            return false;
+        });
+        socket.on('reload page', function() {
+            location.reload();
+        });
+        socket.on('playerListUpdate', function(playerlist){
+            $('#players').empty();
+            for(p in playerlist) {
+                $('#players').append($('<li>').text(playerlist[p]));
+            }
+        });
+        socket.on('updateMessage', function(playername){
+            $('#message').empty();
+            $('#message').append($('<h2>').text('Welcome to the game, ' + playername));
+            $('#n').prop('placeholder','Rename');
+        });
+        
+        socket.on('cleansedWord', function(word){
+            $('#currentWord').text(word);
+            $('#startButton').prop('disabled',false);
+        })
+        
+        socket.on('game status update', function(status) {
+            $('#setup').empty();
+            //status == [this.isOver, this.log, this.wrong_letters, this.current_progress, this.available_letters]
+            if (status[0]) {
+                $('#setup').append($('<h2>Enter a word or phrase for others to guess</h2>'))
+                .append($('<p>Anyone may submit a word/phrase to start the game.</p>'))
+                .append($('<form action="">')
+                    .append($('<input id="word" autocomplete="off" minlength="1" />'))
+                    .append($('<input id="word_enter" type="button" value="Submit" />'))
+                )
+                .append($('<br>'))
+                .append($('<p>You have submitted: <span id="currentWord">nothing yet</span> <button disabled id="startButton">Start Game!</button></p>'));
+            }
+            //update log
+            $('#game_log').empty();
+            for (i in status[1]) {
+                $('#game_log').append(($('<li>').text(status[1][i])));
+            }
+            //populate wrong letters
+            $('#guessed_letters').empty();
+            for (i in status[2]) {
+                $('#guessed_letters').append(($('<span>').text('['+status[2][i]+']')));
+            }
+            //update hangman image
+            $('#hangman_img').empty().append($('<img class="w-100">').prop('src', 'images/hm' + status[2].length + '.png'));
+            //reveal correctly guessed letters
+            $('#ghostword').text(status[3]);
+            //populate available letters
+            $('#guessable').empty();
+            for (i in status[4]) {
+                $('#guessable').append($('<button class="guessable_letter card bg-light h2">').text(status[4][i]));
+            }
+        });
+    });
+</script>
+
+<body style="background-color:#F1FFE7">
+    <div class="container-fluid h-100">
+        <div class="row mt-5">
+            <div class="col-11 m-auto">
+                <div class="row">
+                    <div class="col-2">
+                        <div id="playerlist">
+                            <h2>Players</h2>
+                            <ul id="players"></ul>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div id="hangman_img"></div>
+                    </div>
+                    <div class="col-8">
+                        <div class="row">
+                            <div class="col">
+                                <div id="game_log_area">
+                                    <ul id="game_log"></ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div id="guessed_letters" class="h1 m-auto"></div>
+                            </div>
+                        </div>
+                        <div class="row text-center">
+                            <div class="col">
+                                <span id="ghostword" class="display-3 m-auto text-center"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>        
+        </div>
+        <div class="row align-items-end">
+            <div class="col-11 m-auto">
+                <div id="guessable" class="card-group"></div>
+                <div id="setup">
+                    <h2>Enter a word or phrase for others to guess</h2>
+                    <p>Anyone may submit a word/phrase and start a game.</p>
+                    <form action="">
+                        <input id="word" autocomplete="off" minlength="1" />
+                        <input id="word_enter" type="button" value="Submit" />
+                    </form>
+                    <br>
+                    <p>You have submitted: <span id="currentWord">nothing yet</span> <button disabled id="startButton">Start Game!</button></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+
+</html>
