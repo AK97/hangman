@@ -151,6 +151,7 @@ gamesocket.on('connection', (socket) => {
 	//check if the room still exists
     if (rooms[socket.request.session.roomToJoin]) { //if the room exists...
         let active_room = rooms[socket.request.session.roomToJoin];
+        gamesocket.emit('tell room code', active_room.code);
         gamesocket.emit('playerListUpdate', Object.values(active_room.players)); //give them current lobby details
         if (active_room.game != null) {
             gamesocket.emit('game status update', active_room.game.status()); //render the game on clientside if a game is ongoing
