@@ -12,9 +12,7 @@ var rooms = {};
 function generateRoomCode() {
 	return (
 		'hm' +
-		Math.random()
-			.toString(36)
-			.substring(2, 15)
+		Math.random().toString(36).substr(2, 4)
 	);
 }
 class Room {
