@@ -23,7 +23,7 @@
             socket.emit('letter guess', $(this).text());
             return false;
         });
-        $('#setup').on('click','#word_enter',function(){
+        $('#setup').on('submit','#word_enter',function(){
             socket.emit('wordSubmission', $('#word').val());
             return false;
         });
@@ -95,7 +95,7 @@
     <div class="container-fluid d-flex flex-column h-100">
         <div class="row mt-2 d-flex flex-grow-1" style="overflow:hidden">
             <div class="col-11 ml-auto mr-auto">
-                <div class="row h-100">
+                <div class="row h-100 border border-dark">
                     <div class="col-2">
                         <div id="playerlist">
                         	<h4>ROOM CODE: <span id="roomCode"></span></h4>
@@ -133,12 +133,12 @@
                 <div id="setup">
                     <h2>Enter a word or phrase for others to guess</h2>
                     <p>Anyone may submit a word/phrase and start a game.</p>
-                    <form action="">
-                        <input id="word" autocomplete="off" minlength="1" />
-                        <input id="word_enter" type="button" value="Submit" />
+                    <form id="word_enter" class="form-inline">
+                        <input id="word" class="form-control" autocomplete="off" minlength="1">
+                        <input type="submit" class="btn btn-dark form-control" value="Submit">
                     </form>
                     <br>
-                    <p>You have submitted: <span id="currentWord">nothing yet</span> <button disabled id="startButton">Start Game!</button></p>
+                    <p>You have submitted: <span id="currentWord">nothing yet</span> <button disabled class="btn btn-dark" id="startButton">Start Game!</button></p>
                 </div>
             </div>
         </div>

@@ -11,16 +11,17 @@ var rooms = {};
 
 function generateRoomCode() {
 	return (
-		'hm' +
-		Math.random().toString(36).substr(2, 4)
+	    Math.random().toString(36).substr(2, 4).toLowerCase()
 	);
 }
 class Room {
-    constructor(host_id, host_name) {
+    constructor(host_id, host_name, code=null) {
         this.players = {};
         this.players[host_id] = host_name;
-        this.code = generateRoomCode();
+        this.players_here = [];
+        code == null ? this.code = generateRoomCode() : this.code = code;
         this.game = null;
+        console.log('room created: ' + this.code)
     }
 }
 
@@ -78,11 +79,16 @@ function sanitizeString(str){
     return str.trim();
 }
 
+function sanitizeRoomCode(str){
+    str = str.replace(/[^a-zA-Z0-9\s]/g, '');
+    return str.trim().replace(/[\s]/g,'-').toLowerCase();
+}
+
 app.use('/styles',express.static(__dirname + '/styles')); //provide client with (static) stylesheets
 app.use('/images',express.static(__dirname + '/images')); //provide client with (static) images
 
 sessionDef = session({
-	secret: 'secret-key',
+	secret: 'sOOPER SECRET !',
 	saveUninitialized: true,
 	resave: true,
 });
@@ -94,14 +100,14 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
-app.get('/hm*', (req, res) => {
+app.get('/*', (req, res) => {
     //note: in this context, req.session refers to same object as socket.request.session in socket context. unsure if by value or reference
     //let them into the game if room exists & they have been added via homepage already
-    let destination = rooms[req.path.substr(1)]
+    let destination = rooms[req.path.substr(1)];
     if (destination) {
         if (destination.players[req.session.id]) {
             req.session.roomToJoin = req.path.substr(1);
-            console.log('user accessing game page.');
+            console.log('user accessing game page: ' + req.path);
             res.sendFile(__dirname + '/play.html');
         }
         else {
@@ -123,24 +129,40 @@ io.use(function(socket, next) {
 indexsocket.on('connection', (socket) => {
     console.log('new user has reached homepage with player id ' + socket.id);
 
-    socket.on('join game', (info) => {
+    socket.on('join game', (config, errorback) => {
         //info = [name, roomcode]
         //check if roomcode valid
-        if (!rooms[info[1]]) {
+        let [username, roomcode] = config;
+        if (!rooms[roomcode.toLowerCase()]) {
             console.log('join error');
-            socket.emit('join error', 'Sorry, that room code is invalid');
+            errorback('join error', 'Sorry, that room code is invalid');
         }
         else {
-            rooms[info[1]].players[socket.request.session.id] = info[0]; //set player name by express session id
-            socket.emit('go to room', info[1]); //tell client to go to game page
+            rooms[roomcode.toLowerCase()].players[socket.request.session.id] = username; //set player name by express session id
+            socket.emit('go to room', roomcode.toLowerCase()); //tell client to go to game page
         }
     });
 
-    socket.on('create game', (name) => {
+    socket.on('create game', (config, errorback) => {
+        let username = config[0];
+        let roomcode = sanitizeRoomCode(config[1]);
         let userid = socket.request.session.id;
-        let new_room = new Room(userid, name);
-        rooms[new_room.code] = new_room;
-        socket.emit('go to room', new_room.code);
+        if (!(username.length > 0)) {
+            errorback('Please enter a username')
+        }
+        else if (roomcode == '') {
+            let new_room = new Room(userid, username);
+            rooms[new_room.code] = new_room;
+            socket.emit('go to room', new_room.code);
+        }
+        else if (rooms[roomcode]) {
+            errorback('A room already exists with that name');
+        }
+        else {
+            let new_room = new Room(userid, username, roomcode);
+            rooms[new_room.code] = new_room;
+            socket.emit('go to room', new_room.code);
+        }
     });
 });
 
@@ -157,16 +179,20 @@ gamesocket.on('connection', (socket) => {
         console.log('new user has reached a gamepage');
 
         socket.on('wordSubmission', (word) => {
-            submitted_word = sanitizeString(word.trim()).toUpperCase();
-            socket.emit('cleansedWord', submitted_word)
+            if (word.length != 0) {
+                submitted_word = sanitizeString(word.trim()).toUpperCase();
+                socket.emit('cleansedWord', submitted_word)
+            }
         });
 
         socket.on('startGame', (gameword) => {
-            console.log('starting game');
-            play_word = sanitizeString(gameword.trim()).toUpperCase();
-            active_room.game = new Game(play_word, active_room.players[socket.request.session.id]);
-            // gamesocket.emit('game page setup');
-            gamesocket.emit('game status update', active_room.game.status());
+            if (sanitizeString(gameword).length != 0) {
+                console.log('starting game');
+                play_word = sanitizeString(gameword.trim()).toUpperCase();
+                active_room.game = new Game(play_word, active_room.players[socket.request.session.id]);
+                // gamesocket.emit('game page setup');
+                gamesocket.emit('game status update', active_room.game.status());
+            }
         });
 
         socket.on('letter guess', (letter) => {
@@ -176,11 +202,6 @@ gamesocket.on('connection', (socket) => {
                     gamesocket.emit('game status update', active_room.game.status());
                 }
             }
-        });
-
-        socket.on('new game', function() {
-            active_room.game = null;
-            gamesocket.emit('reload page');
         });
 
         socket.on('disconnect', () => {

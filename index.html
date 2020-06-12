@@ -12,18 +12,19 @@
     $(function () {
         var socket = io('/home');
         $("#startButton").on('click', function() {
-            socket.emit("create game", $('#name_input').val());
+            socket.emit("create game", [$('#name_input').val(), $('#room_code').val()], function(errormsg) {
+                $('#error_message').text(errormsg);
+            });
             return false;
         });
         $("#joinButton").on('click', function() {
-            socket.emit("join game", [$('#name_input').val(), $('#room_code').val()]);
+            socket.emit("join game", [$('#name_input').val(), $('#room_code').val()], function(errormsg) {
+                $('#error_message').text(errormsg);
+            });
             return false;
         });
         socket.on('go to room', (url) => {
             window.open(url, "_self")
-        })
-        socket.on('join error', (error) => {
-            $('#error_message').text(error);
         })
     });
 </script>
