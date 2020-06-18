@@ -168,13 +168,15 @@ indexsocket.on('connection', (socket) => {
 
 gamesocket.on('connection', (socket) => {
     //note: in this context, socket.request.session refers to same object as req.session in express context. unsure if by value or reference
-	//check if the room still exists
-    if (rooms[socket.request.session.roomToJoin]) { //if the room exists...
+    //check if the room still exists
+    let active_room_code = socket.request.session.roomToJoin;
+    if (rooms[active_room_code]) { //if the room exists...
         let active_room = rooms[socket.request.session.roomToJoin];
-        gamesocket.emit('tell room code', active_room.code);
-        gamesocket.emit('playerListUpdate', Object.values(active_room.players)); //give them current lobby details
+        socket.join(active_room_code);
+        socket.emit('tell room code', active_room.code);
+        gamesocket.in(active_room_code).emit('playerListUpdate', Object.values(active_room.players)); //give them current lobby details
         if (active_room.game != null) {
-            gamesocket.emit('game status update', active_room.game.status()); //render the game on clientside if a game is ongoing
+            socket.emit('game status update', active_room.game.status()); //render the game on clientside if a game is ongoing
         }
         console.log('new user has reached a gamepage');
 
@@ -191,7 +193,7 @@ gamesocket.on('connection', (socket) => {
                 play_word = sanitizeString(gameword.trim()).toUpperCase();
                 active_room.game = new Game(play_word, active_room.players[socket.request.session.id]);
                 // gamesocket.emit('game page setup');
-                gamesocket.emit('game status update', active_room.game.status());
+                gamesocket.in(active_room_code).emit('game status update', active_room.game.status());
             }
         });
 
@@ -199,7 +201,7 @@ gamesocket.on('connection', (socket) => {
             if (!active_room.game.isOver) { //ensure game isn't over
                 if (active_room.game.available_letters.includes(letter)) { //ensure valid input
                     active_room.game.guessLetter(letter, active_room.players[socket.request.session.id]);
-                    gamesocket.emit('game status update', active_room.game.status());
+                    gamesocket.in(active_room_code).emit('game status update', active_room.game.status());
                 }
             }
         });

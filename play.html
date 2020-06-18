@@ -61,12 +61,12 @@
             if (status[0]) {
                 $('#setup').append($('<h2>Enter a word or phrase for others to guess</h2>'))
                 .append($('<p>Anyone may submit a word/phrase to start the game.</p>'))
-                .append($('<form action="">')
-                    .append($('<input id="word" autocomplete="off" minlength="1" />'))
-                    .append($('<input id="word_enter" type="button" value="Submit" />'))
+                .append($('<form id="word_enter" class="form-inline">')
+                    .append($('<input id="word" class="form-control" autocomplete="off" minlength="1">'))
+                    .append($('<input type="submit" class="btn btn-dark form-control" value="Submit">'))
                 )
                 .append($('<br>'))
-                .append($('<p>You have submitted: <span id="currentWord">nothing yet</span> <button disabled id="startButton">Start Game!</button></p>'));
+                .append($('<p>You have submitted: <span id="currentWord">nothing yet</span> <button disabled class="btn btn-dark" id="startButton">Start Game!</button></p>'));
             }
             //update log
             $('#game_log').empty();
