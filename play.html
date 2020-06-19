@@ -91,11 +91,11 @@
     });
 </script>
 
-<body style="background-color:#DDF1D7">
+<body class="playpage_bg">
     <div class="container-fluid d-flex flex-column h-100">
-        <div class="row mt-2 d-flex flex-grow-1" style="overflow:hidden">
-            <div class="col-11 ml-auto mr-auto">
-                <div class="row h-100 border border-dark">
+        <div class="row mt-2 mb-2 d-flex flex-grow-1" style="overflow:hidden">
+            <div class="col-11 ml-auto mr-auto p-2 rounded game_container">
+                <div class="row h-100">
                     <div class="col-2">
                         <div id="playerlist">
                         	<h4>ROOM CODE: <span id="roomCode"></span></h4>
@@ -107,18 +107,18 @@
                         <div id="hangman_img"></div>
                     </div>
                     <div class="col-7">
-                        <div class="row h-50">
-                            <div id="game_log_area" class="col-8 ml-auto mr-auto d-flex flex-column-reverse" style="max-height:33%;">
-                                <ul id="game_log">
+                        <div class="row h-25">
+                            <div id="game_log_area" class="col-8 ml-auto mr-auto">
+                                <ul id="game_log" class="overflow-auto p-0">
                                 </ul>
                             </div>
                         </div>
                         <div class="row h-25">
-                            <div class="col">
-                                <div id="guessed_letters" class="h1 m-auto text-center"></div>
+                            <div class="col-8 ml-auto mr-auto ">
+                                <div id="guessed_letters" class="h1 m-auto"></div>
                             </div>
                         </div>
-                        <div class="row h-25">
+                        <div class="row h-50">
                             <div class="col text-center">
                                 <span id="ghostword" class="display-3 m-auto text-center"></span>
                             </div>
@@ -128,8 +128,8 @@
             </div>        
         </div>
         <div class="row mb-2">
-            <div class="col-11 ml-auto mr-auto">
-                <div id="guessable" class="card-group"></div>
+            <div class="col-11 ml-auto mr-auto rounded setup_container">
+                <div id="guessable" class="card-group" style="column-count: 13;"></div>
                 <div id="setup">
                     <h2>Enter a word or phrase for others to guess</h2>
                     <p>Anyone may submit a word/phrase and start a game.</p>

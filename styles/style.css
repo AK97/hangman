@@ -25,10 +25,6 @@ ul {
 .homepage_bg {
     /* background-color:#DDF1D7; */
     background-color: rgb(127, 205, 145);
-    /* background: -webkit-linear-gradient(top, whitesmoke, #65CCB8);
-  	background: -o-linear-gradient(top, whitesmoke, #65CCB8);
-  	background: -moz-linear-gradient(top, whitesmoke, #65CCB8);
-    background: linear-gradient(top, whitesmoke, #65CCB8); */
     background-attachment: initial;  
     background-image: linear-gradient(rgba(127, 205, 145, 0.5),rgba(127,205,145,0.9)), url("../images/wordcloud_bg_hd.png");
     background-image: -webkit-linear-gradient(rgba(127, 205, 145, 0.5),rgba(127,205,145,0.9)), url("../images/wordcloud_bg_hd.png");
@@ -52,4 +48,24 @@ ul {
 }
 .homepage_box .display-2 {
     font-family: 'Architects Daughter', cursive;
+}
+
+.playpage_bg {
+    /* color: rgb(91, 86, 86); */
+    color: #4d4646;
+    background-color: rgba(127, 205, 145, 0.9);
+    /* background-attachment: initial;  
+    background-image: linear-gradient(rgba(127, 205, 145, 0.95),rgba(127,205,145,0.95)), url("../images/wordcloud_bg_hd.png");
+    background-image: -webkit-linear-gradient(rgba(127, 205, 145, 0.95),rgba(127,205,145,0.95)), url("../images/wordcloud_bg_hd.png");
+    background-image: -o-linear-gradient(rgba(127, 205, 145, 0.95),rgba(127,205,145,0.95)), url("../images/wordcloud_bg_hd.png");
+    background-image: -moz-linear-gradient(rgba(127, 205, 145, 0.95),rgba(127,205,145,0.95)), url("../images/wordcloud_bg_hd.png");
+    background-size: cover;
+    overflow: hidden; */
+}
+
+.game_container {
+    background-color: rgba(245, 234, 234, 0.5);
+}
+.setup_container {
+    background-color:rgba(245, 234, 234, 0.5);
 }
