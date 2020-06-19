@@ -1,9 +1,10 @@
 <!doctype html>
 <html>
 <head>
-  <title>HANGMAN</title>
-  <!-- <link rel="stylesheet" type="text/css" href="styles/style.css"> -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <title>HANGMAN</title>
+    <link rel="stylesheet" type="text/css" href="styles/style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Give+You+Glory&family=Open+Sans:wght@400;700&display=swap" rel="stylesheet"> 
 </head>
 
 <script src="/socket.io/socket.io.js"></script>
@@ -29,10 +30,10 @@
     });
 </script>
 
-<body style="background-color:#DDF1D7">
-    <div class="container-fluid">
-        <div class="row mt-5">
-            <div class="col-4 m-auto">
+<body class="homepage_bg">
+    <div class="container-fluid h-100">
+        <div class="row h-100">
+            <div class="col-auto m-auto p-4 homepage_box">
                 <div class="">
                     <h1 class="display-2 text-center">HANGMAN</h1>
                     <div class="">
@@ -46,8 +47,8 @@
                               <input id="room_code" type="text" class="form-control" placeholder="Optional">
                             </div>
                             <div class="text-center">
-                                <button id="joinButton" type="button" class="btn btn-primary">Join Game</button>
-                                <button id="startButton" type="button" class="btn btn-primary">Create Game</button>
+                                <button id="joinButton" type="button" class="btn">Join Game</button>
+                                <button id="startButton" type="button" class="btn">Create Game</button>
                             </div>
                             <div class="text-center">
                                 <span id="error_message" class="text-danger"></span>    

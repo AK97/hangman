@@ -21,3 +21,35 @@ ul {
     width: 0;
     height: 0;
 }
+
+.homepage_bg {
+    /* background-color:#DDF1D7; */
+    background-color: rgba(127, 205, 145);
+    /* background: -webkit-linear-gradient(top, whitesmoke, #65CCB8);
+  	background: -o-linear-gradient(top, whitesmoke, #65CCB8);
+  	background: -moz-linear-gradient(top, whitesmoke, #65CCB8);
+    background: linear-gradient(top, whitesmoke, #65CCB8); */
+    background-attachment: initial;  
+    background-image: linear-gradient(rgba(127, 205, 145, 0.5),rgba(127,205,145,0.9)), url("../images/wordcloud_bg_hd.png");
+    background-image: -webkit-linear-gradient(rgba(127, 205, 145, 0.5),rgba(127,205,145,0.9)), url("../images/wordcloud_bg_hd.png");
+    background-image: -o-linear-gradient(rgba(127, 205, 145, 0.5),rgba(127,205,145,0.9)), url("../images/wordcloud_bg_hd.png");
+    background-image: -moz-linear-gradient(rgba(127, 205, 145, 0.5),rgba(127,205,145,0.9)), url("../images/wordcloud_bg_hd.png");
+    background-size: cover;
+    overflow: hidden;
+
+}
+
+.homepage_box {
+    background-color: #f5eaea;
+    border-radius: 20px;
+    color: #4d4646;
+    font-family: 'Open Sans', sans-serif;
+}
+.homepage_box .btn {
+    color: #f5eaea;
+    background-color: #5b5656;
+    border-color: #5b5656;
+}
+.homepage_box .display-2 {
+    font-family: 'Architects Daughter', cursive;
+}
