@@ -41,6 +41,7 @@ ul {
     color: #4d4646;
     font-family: 'Open Sans', sans-serif;
 }
+
 .homepage_box .btn {
     color: #f5eaea;
     background-color: #5b5656;
@@ -54,6 +55,7 @@ ul {
     /* color: rgb(91, 86, 86); */
     color: #4d4646;
     background-color: rgba(127, 205, 145, 0.9);
+    font-family: 'Open Sans', sans-serif;
     /* background-attachment: initial;  
     background-image: linear-gradient(rgba(127, 205, 145, 0.95),rgba(127,205,145,0.95)), url("../images/wordcloud_bg_hd.png");
     background-image: -webkit-linear-gradient(rgba(127, 205, 145, 0.95),rgba(127,205,145,0.95)), url("../images/wordcloud_bg_hd.png");
@@ -67,5 +69,5 @@ ul {
     background-color: rgba(245, 234, 234, 0.5);
 }
 .setup_container {
-    background-color:rgba(245, 234, 234, 0.5);
+    /* background-color:rgba(245, 234, 234, 0.5); */
 }
