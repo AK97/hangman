@@ -37,8 +37,22 @@ class Game {
         this.limit = 7; //how many guesses are game over. eventually chooseable by host
     }
     guessLetter(guess, guesser) {
-        //log the guess
-        this.log.push(guesser + ' guessed the letter ' + guess);
+        //see if it's the host giving a hint
+        if (guesser == this.host) {
+            if (this.word.includes(guess)) {
+                //log the hint
+                this.log.push(guesser + ' gave a hint: ' + guess);
+            }
+            else {
+                //host is attempting to sabotage. disallow
+                return null
+            }
+        }
+        else {
+            //log the guess
+            this.log.push(guesser + ' guessed the letter ' + guess);
+        }
+
         //remove it from list of available letters
         this.available_letters.splice(this.available_letters.indexOf(guess),1);
         //reveal letters, updating current progress
