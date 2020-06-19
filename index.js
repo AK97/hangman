@@ -149,13 +149,21 @@ indexsocket.on('connection', (socket) => {
         //info = [name, roomcode]
         //check if roomcode valid
         let [username, roomcode] = config;
-        if (!rooms[sanitizeRoomCode(roomcode)]) {
-            console.log('join error');
-            errorback('join error', 'Sorry, that room code is invalid');
+        let code = sanitizeRoomCode(roomcode);
+        if (!(username.length > 0)) {
+            errorback('Please enter a username')
         }
+        else if (!rooms[code]) {
+            console.log('join error - invalid room code: ' + code);
+            errorback('Invalid room code');
+        }
+        else if(Object.values(rooms[code].players).includes(username)) {
+            console.log('join error - duplicate username ' + username + ' in room ' + code);
+            errorback('Sorry, that username is already in use in that room');
+        } 
         else {
-            rooms[sanitizeRoomCode(roomcode)].players[socket.request.session.id] = username; //set player name by express session id
-            socket.emit('go to room', sanitizeRoomCode(roomcode)); //tell client to go to game page
+            rooms[code].players[socket.request.session.id] = username; //set player name by express session id
+            socket.emit('go to room', code); //tell client to go to game page
         }
     });
 
