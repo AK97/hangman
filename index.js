@@ -147,13 +147,13 @@ indexsocket.on('connection', (socket) => {
         //info = [name, roomcode]
         //check if roomcode valid
         let [username, roomcode] = config;
-        if (!rooms[roomcode.toLowerCase()]) {
+        if (!rooms[sanitizeRoomCode(roomcode)]) {
             console.log('join error');
             errorback('join error', 'Sorry, that room code is invalid');
         }
         else {
-            rooms[roomcode.toLowerCase()].players[socket.request.session.id] = username; //set player name by express session id
-            socket.emit('go to room', roomcode.toLowerCase()); //tell client to go to game page
+            rooms[sanitizeRoomCode(roomcode)].players[socket.request.session.id] = username; //set player name by express session id
+            socket.emit('go to room', sanitizeRoomCode(roomcode)); //tell client to go to game page
         }
     });
 
