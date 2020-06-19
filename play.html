@@ -86,7 +86,7 @@
             //populate available letters
             $('#guessable').empty();
             for (i in status[4]) {
-                $('#guessable').append($('<button class="guessable_letter card m-1 bg-light h2">').text(status[4][i]));
+                $('#guessable').append($('<button class="guessable_letter card h3 p-0 bg-light">').text(status[4][i]));
             }
         });
     });
@@ -131,7 +131,7 @@
         </div>
         <div class="row mb-2">
             <div class="col-11 ml-auto mr-auto rounded setup_container">
-                <div id="guessable" class="card-group pl-0" style="column-count: 13;"></div>
+                <div id="guessable" class="card-group"></div>
                 <div id="setup">
                     <h2>Enter a word or phrase for others to guess</h2>
                     <p>Anyone may submit a word/phrase and start a game.</p>
