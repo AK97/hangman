@@ -10,9 +10,11 @@ const port = process.env.PORT || 69;
 var rooms = {};
 
 function generateRoomCode() {
-	return (
-	    Math.random().toString(36).substr(2, 4).toLowerCase()
-	);
+    let code = Math.random().toString(36).substr(2, 4).toLowerCase();
+    while (Object.keys(rooms).includes(code)) {
+        code = Math.random().toString(36).substr(2, 4).toLowerCase();
+    }
+	return code;
 }
 class Room {
     constructor(host_id, host_name, code=null) {
