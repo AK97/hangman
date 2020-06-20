@@ -24,6 +24,9 @@
             });
             return false;
         });
+        socket.on('fill placeholder', (code) => {
+            $('#room_code').val(code);
+        });
         socket.on('go to room', (url) => {
             window.open(url, "_self")
         })

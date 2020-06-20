@@ -96,7 +96,7 @@ function sanitizeString(str){
 }
 
 function sanitizeRoomCode(str){
-    str = str.replace(/[^a-zA-Z0-9\s]/g, '');
+    str = str.replace(/[^a-zA-Z0-9-\s]/g, '');
     return str.trim().replace(/[\s]/g,'-').toLowerCase();
 }
 
@@ -113,6 +113,7 @@ sessionDef = session({
 app.use(sessionDef);
 
 app.get('/', (req, res) => {
+    req.session.intendedDestination = null;
     res.sendFile(__dirname + '/index.html');
 });
 
@@ -120,6 +121,7 @@ app.get('/*', (req, res) => {
     //note: in this context, req.session refers to same object as socket.request.session in socket context. unsure if by value or reference
     //let them into the game if room exists & they have been added via homepage already
     let destination = rooms[req.path.substr(1)];
+    req.session.intendedDestination = null;
     if (destination) {
         if (destination.players[req.session.id]) {
             req.session.roomToJoin = req.path.substr(1);
@@ -127,6 +129,8 @@ app.get('/*', (req, res) => {
             res.sendFile(__dirname + '/play.html');
         }
         else {
+            req.session.intendedDestination = req.path.substr(1);
+            console.log('user attempted to access active game ' + req.path + ' by link; redirecting to homepage')
             res.sendFile(__dirname + '/index.html');
         }
     }
@@ -144,6 +148,10 @@ io.use(function(socket, next) {
 
 indexsocket.on('connection', (socket) => {
     console.log('new user has reached homepage with player id ' + socket.id);
+
+    if (socket.request.session.intendedDestination) {
+        socket.emit('fill placeholder', socket.request.session.intendedDestination);
+    }
 
     socket.on('join game', (config, errorback) => {
         //info = [name, roomcode]
