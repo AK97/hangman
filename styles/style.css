@@ -4,6 +4,7 @@ html, body {
 
 ul {
     list-style-type: none;
+    /* font-family: 'Give You Glory', cursive; */
 }
 
 #hangman_img > img {

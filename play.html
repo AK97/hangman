@@ -74,6 +74,7 @@
             for (i in status[1]) {
                 $('#game_log').append(($('<li>').text(status[1][i])));
             }
+            $('#game_log_area').scrollTop($('#game_log_area').prop('scrollHeight'));
             //populate wrong letters
             $('#guessed_letters').empty();
             for (i in status[2]) {
@@ -110,8 +111,8 @@
                     </div>
                     <div class="col-7">
                         <div class="row h-25">
-                            <div id="game_log_area" class="col-8 ml-auto mr-auto">
-                                <ul id="game_log" class="overflow-auto p-0">
+                            <div id="game_log_area" class="col-8 ml-auto mr-auto overflow-auto border">
+                                <ul id="game_log" class="p-0 border">
                                 </ul>
                             </div>
                         </div>
