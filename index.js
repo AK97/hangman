@@ -16,11 +16,12 @@ function generateRoomCode() {
     }
 	return code;
 }
+
 class Room {
     constructor(host_id, host_name, code=null) {
         this.players = {};
         this.players[host_id] = host_name;
-        this.players_here = [];
+        this.players_here = {};
         code == null ? this.code = generateRoomCode() : this.code = code;
         this.game = null;
         console.log('room created: ' + this.code)
@@ -203,10 +204,11 @@ gamesocket.on('connection', (socket) => {
     //check if the room still exists
     let active_room_code = socket.request.session.roomToJoin;
     if (rooms[active_room_code]) { //if the room exists...
-        let active_room = rooms[socket.request.session.roomToJoin];
+        let active_room = rooms[active_room_code];
         socket.join(active_room_code);
+        active_room.players_here[active_room.players[socket.request.session.id]] = true;
         socket.emit('tell room code', active_room.code);
-        gamesocket.in(active_room_code).emit('playerListUpdate', Object.values(active_room.players)); //give them current lobby details
+        gamesocket.in(active_room_code).emit('playerListUpdate', active_room.players_here); //give them current lobby details
         if (active_room.game != null) {
             socket.emit('game status update', active_room.game.status()); //render the game on clientside if a game is ongoing
         }
@@ -239,10 +241,10 @@ gamesocket.on('connection', (socket) => {
         });
 
         socket.on('disconnect', () => {
-            // what to do upon new user disappearing
-
-            // gamesocket.emit('playerListUpdate', Object.values(socket.request.session.roomToJoin.players));
-            console.log('user ' + socket.request.session.id + ' disconnected');
+            // show that they're offline
+            active_room.players_here[active_room.players[socket.request.session.id]] = false;
+            gamesocket.emit('playerListUpdate', active_room.players_here);
+            console.log('user ' + socket.request.session.id + ' disconnected from ' + active_room_code);
         });		
     }
 
