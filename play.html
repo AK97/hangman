@@ -42,7 +42,8 @@
         socket.on('playerListUpdate', function(playerlist){
             $('#players').empty();
             for(p in playerlist) {
-                $('#players').append($('<li>').text(playerlist[p]));
+                let status_symbol = playerlist[p] ? $('<div class="badge badge-success float-right">').text('online') : $('<div class="badge badge-secondary float-right">').text('offline')
+                $('#players').append($('<li>').text(p).append(status_symbol));
             }
         });
         socket.on('updateMessage', function(playername){
@@ -111,8 +112,8 @@
                     </div>
                     <div class="col-7">
                         <div class="row h-25">
-                            <div id="game_log_area" class="col-8 ml-auto mr-auto overflow-auto border">
-                                <ul id="game_log" class="p-0 border">
+                            <div id="game_log_area" class="col-8 ml-auto mr-auto overflow-auto">
+                                <ul id="game_log" class="p-0">
                                 </ul>
                             </div>
                         </div>
