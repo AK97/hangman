@@ -3,8 +3,15 @@ var app = express();
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 var session = require('express-session');
+var url = require('url');
 
 const port = process.env.PORT || 69;
+
+// console.log('test log msg', port)
+// console.error('test error msg', port)
+// console.warn('test warn msg', port)
+// console.info('test info msg', port)
+// console.debug('test debug msg', port)
 
 //const alphabet = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
 var rooms = {};
@@ -125,7 +132,6 @@ app.get('/*', (req, res) => {
     req.session.intendedDestination = null;
     if (destination) {
         if (destination.players[req.session.id]) {
-            req.session.roomToJoin = req.path.substr(1);
             console.log('user accessing game page: ' + req.path);
             res.sendFile(__dirname + '/play.html');
         }
@@ -202,7 +208,7 @@ indexsocket.on('connection', (socket) => {
 gamesocket.on('connection', (socket) => {
     //note: in this context, socket.request.session refers to same object as req.session in express context. unsure if by value or reference
     //check if the room still exists
-    let active_room_code = socket.request.session.roomToJoin;
+    let active_room_code = new URL(socket.handshake.headers.referer).pathname.split('/').pop();
     if (rooms[active_room_code]) { //if the room exists...
         let active_room = rooms[active_room_code];
         socket.join(active_room_code);
@@ -243,7 +249,7 @@ gamesocket.on('connection', (socket) => {
         socket.on('disconnect', () => {
             // show that they're offline
             active_room.players_here[active_room.players[socket.request.session.id]] = false;
-            gamesocket.emit('playerListUpdate', active_room.players_here);
+            gamesocket.in(active_room_code).emit('playerListUpdate', active_room.players_here);
             console.log('user ' + socket.request.session.id + ' disconnected from ' + active_room_code);
         });		
     }
