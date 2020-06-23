@@ -4,6 +4,7 @@ var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 var session = require('express-session');
 var url = require('url');
+var Private = require('./sensitive.json');
 
 const port = process.env.PORT || 69;
 
@@ -112,7 +113,7 @@ app.use('/styles',express.static(__dirname + '/styles')); //provide client with 
 app.use('/images',express.static(__dirname + '/images')); //provide client with (static) images
 
 sessionDef = session({
-	secret: 'sOOPER SECRET !',
+	secret: Private["secret-key"],
 	saveUninitialized: true,
 	resave: true,
 });
