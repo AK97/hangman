@@ -43,7 +43,7 @@ class Game {
         this.log = [gameStarter+' has started the game!']; //game log history
         this.wrong_letters = [];
         this.available_letters = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
-        this.current_progress = this.word.replace(/[A-Z]/g, '~');
+        this.current_progress = this.word.replace(/[A-Z]/g, '_');
         this.isOver = false;
         this.limit = 7; //how many guesses are game over. eventually chooseable by host
     }
@@ -83,7 +83,7 @@ class Game {
             this.isOver = true;
             this.log.push('Game over. The answer was ' + this.word);
         }
-        else if(!this.current_progress.includes('~')) {
+        else if(!this.current_progress.includes('_')) {
             this.isOver = true;
             this.log.push('Solved! Game over.');
         }
