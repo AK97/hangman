@@ -45,13 +45,23 @@ class Game {
         this.current_progress = this.word.replace(/[A-Z]/g, '_');
         this.isOver = false;
         this.limit = 7; //how many guesses are game over. eventually chooseable by host
+        this.startTime = Date.now();
+        this.endTime = null;
     }
     guessLetter(guess, guesser) {
+        //timestamp
+        let elapsed = Date.now() - this.startTime;
+        let seconds = Math.floor(elapsed/1000) % 60;
+        let minutes = Math.floor(elapsed/60000);
+        seconds = (seconds.toString().length == 1) ? `0${seconds}` : seconds; // Add a leading zero if necessary
+        var time = `${minutes}:${seconds}`;
+        var timestamp = `[${minutes}:${seconds}] `;
+
         //see if it's the host giving a hint
         if (guesser == this.host) {
             if (this.word.includes(guess)) {
                 //log the hint
-                this.log.push(guesser + ' gave a hint: ' + guess);
+                this.log.push(timestamp + guesser + ' gave a hint: ' + guess);
             }
             else {
                 //host is attempting to sabotage. disallow
@@ -60,7 +70,7 @@ class Game {
         }
         else {
             //log the guess
-            this.log.push(guesser + ' guessed the letter ' + guess);
+            this.log.push(timestamp + guesser + ' guessed the letter ' + guess);
         }
 
         //remove it from list of available letters
@@ -80,11 +90,13 @@ class Game {
         }
         if(this.wrong_letters.length == this.limit) {
             this.isOver = true;
-            this.log.push('Game over. The answer was ' + this.word);
+            this.endTime = time;
+            this.log.push(timestamp + 'Game over. The answer was ' + this.word);
         }
         else if(!this.current_progress.includes('_')) {
             this.isOver = true;
-            this.log.push('Solved! Game over.');
+            this.endTime = time;
+            this.log.push(timestamp + 'Solved! Game over.');
         }
     }
     status() {
@@ -94,7 +106,7 @@ class Game {
         //incorrectly guessed letters
         //string with current progress
         //letters remaining to guess
-        return [this.isOver, this.log, this.wrong_letters, this.current_progress, this.available_letters];
+        return [this.isOver, this.log, this.wrong_letters, this.current_progress, this.available_letters, this.startTime, this.endTime];
     }
 }
 

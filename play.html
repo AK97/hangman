@@ -11,8 +11,10 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script>
+    var g_timer = null;
     $(function () {
         var socket = io('/game');
+        
         $('#name_form').submit(function(e){
             e.preventDefault(); // prevents page reloading
             socket.emit('nicknameUpdate', $('#n').val()); //when user inputs name, send as 'nicknameUpdate' event
@@ -21,7 +23,6 @@
         });
         $('#guessable').on('click','.guessable_letter',function(e){
             e.preventDefault(); // prevents page reloading
-            console.log('here');
             socket.emit('letter guess', $(this).text());
             return false;
         });
@@ -60,8 +61,14 @@
         
         socket.on('game status update', function(status) {
             $('#setup').empty();
-            //status == [this.isOver, this.log, this.wrong_letters, this.current_progress, this.available_letters]
+            //status == [this.isOver, this.log, this.wrong_letters, this.current_progress, this.available_letters, this.startTime]
             if (status[0]) {
+                //stop timer
+                clearInterval(g_timer);
+                g_timer = null;
+                $('#game_timer').text(status[6]);
+                
+                //setup gamestarting
                 $('#setup').append($('<h2>Enter a word or phrase for others to guess</h2>'))
                 .append($('<p>Anyone may submit a word/phrase to start the game.</p>'))
                 .append($('<form id="word_enter" class="form-inline">')
@@ -70,6 +77,18 @@
                 )
                 .append($('<br>'))
                 .append($('<p>You have submitted: <span id="currentWord">nothing yet</span> <button disabled class="btn btn-dark" id="startButton">Start Game!</button></p>'));
+            }
+            else {
+                //build timer
+                if (!g_timer) {
+                    g_timer = setInterval(function() {
+                        let elapsed = Date.now() - status[5];
+                        let seconds = Math.floor(elapsed/1000) % 60;
+                        let minutes = Math.floor(elapsed/60000);
+                        seconds = (seconds.toString().length == 1) ? `0${seconds}` : seconds; // Add a leading zero if necessary
+                        $('#game_timer').text(`${minutes}:${seconds}`);
+                    }, 1);
+                }
             }
             //update log
             $('#game_log').empty();
@@ -99,7 +118,7 @@
     <div class="container-fluid d-flex flex-column h-100">
         <div class="row mt-2 mb-2 d-flex flex-grow-1" style="overflow:hidden">
             <div class="col-11 ml-auto mr-auto p-2 rounded game_container">
-                <div class="row h-100">
+                <div class="row h-100 no-gutters">
                     <div class="col-2">
                         <div id="playerlist">
                             <h3 class="m-0 font-weight-bold">ROOM CODE</h3>
@@ -112,6 +131,7 @@
                         <div id="hangman_img"></div>
                     </div>
                     <div class="col-7">
+                        <div class="position-absolute" style="right: 0;"><span id="game_timer">0:00</span></div>
                         <div class="row h-25">
                             <div id="game_log_area" class="col-8 ml-auto mr-auto overflow-auto">
                                 <ul id="game_log" class="p-0">
