@@ -108,7 +108,7 @@
             //populate available letters
             $('#guessable').empty();
             for (i in status[4]) {
-                $('#guessable').append($('<button class="guessable_letter card h3 p-0 bg-light">').text(status[4][i]));
+                $('#guessable').append($('<button class="guessable_letter card h3 p-0 ml-1 mr-1 text-center bg-light">').text(status[4][i]));
             }
         });
     });
@@ -133,6 +133,7 @@
                     <div class="col-7">
                         <div class="position-absolute" style="right: 0;"><span id="game_timer">0:00</span></div>
                         <div class="row h-25">
+                            <!-- TODO: Add a border to the game log -->
                             <div id="game_log_area" class="col-8 ml-auto mr-auto overflow-auto">
                                 <ul id="game_log" class="p-0">
                                 </ul>

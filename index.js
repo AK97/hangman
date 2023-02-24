@@ -5,7 +5,7 @@ var io = require('socket.io')(http);
 var session = require('express-session');
 var url = require('url');
 
-const port = process.env.PORT || 69;
+const port = process.env.PORT || 8080;
 
 // console.log('test log msg', port)
 // console.error('test error msg', port)
